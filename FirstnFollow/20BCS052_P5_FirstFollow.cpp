@@ -109,6 +109,7 @@ int main(){
 	/******************FILE INPUT********************/
 	fstream newfile;
 	// newfile.open("20BCS052_P5_FirstFollow.txt");
+    // Test7.txt  -  test case given by sir to test
     newfile.open("test7.txt");
 
 	// File Structure
