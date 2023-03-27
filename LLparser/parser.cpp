@@ -1,3 +1,6 @@
+// Considering cfg has no left recusion and no left factoring
+// First and Follow sets are computed using fnf.cpp
+
 #include <iostream>
 #include <fstream>
 #include <string> 
