@@ -5,4 +5,5 @@
 
 #### Test files
 > - [test1.cpp](https://github.com/uzma024/Compiler-Lab/blob/master/LLparser/test1.txt)
-> - [test1.cpp](https://github.com/uzma024/Compiler-Lab/blob/master/LLparser/test2.txt)
+> - [test2.cpp](https://github.com/uzma024/Compiler-Lab/blob/master/LLparser/test2.txt)
+> - [test3.cpp](https://github.com/uzma024/Compiler-Lab/blob/master/LLparser/test3.txt)
