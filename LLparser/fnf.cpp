@@ -8,26 +8,17 @@
 #include <map>
 #include <unordered_map>
 #include <set>
-
 #include "fnf.h"
-
 using namespace std;
 
 set <string> CalFirst(string V, map <string, set <string> > &first, unordered_map <string, vector<vector <string>> > &prod){
-    if(first.find(V)!=first.end()){
-        return first[V];
-    }
+    if(first.find(V)!=first.end())return first[V];    
     for(size_t i=0;i!=prod[V].size();i++){
-        if(prod[V][i][0]==V){
-            continue;
-        }
+        if(prod[V][i][0]==V)continue;
         for(size_t j = 0;j<prod[V][i].size();j++){
-            if(prod[V][i][j]==V){
-                continue;
-            }
+            if(prod[V][i][j]==V)continue;
             string next = prod[V][i][j];
             set <string> temp = CalFirst(next, first, prod);
-
             // Check if cuurent first generates epsilon
             bool isEpsilon = false;
 
@@ -40,8 +31,7 @@ set <string> CalFirst(string V, map <string, set <string> > &first, unordered_ma
                         first[V].insert(*it);
                     }
                 }
-            }
-            
+            }            
             // break loop if it does not generate epsilon
             if(!isEpsilon){
                 break;
@@ -51,13 +41,12 @@ set <string> CalFirst(string V, map <string, set <string> > &first, unordered_ma
     return first[V];
 }
 
-set <string> CalFollow(string original, map <string, set <string> > &follow, map <string, set <string> > &first,unordered_map <string, vector<vector <string>> > &prod, vector <string> terminals){
+set <string> CalFollow(string original, map <string, set <string> > &follow, map <string, set <string> > &first,unordered_map <string, vector<vector <string>> > &prod, vector <string> terminals, string start_symbol){
     if(follow.find(original)!=follow.end())return follow[original];
-    set <string> follow_curr;
     
+    set <string> follow_curr;    
     for(auto it=prod.begin();it!=prod.end();it++){
-        vector <vector<string>> temp= it->second;
-    
+        vector <vector<string>> temp= it->second;    
         for(size_t i=0;i<temp.size();i++){
             auto last_ele = temp[i].end();
             last_ele--;
@@ -71,13 +60,12 @@ set <string> CalFollow(string original, map <string, set <string> > &follow, map
                 // check if element is last in production
                     // calculate n add follow of parent
                     if(it->first==*curr_ele)break;
-                    CalFollow(it->first,follow,first,prod,terminals);
+                    CalFollow(it->first,follow,first,prod,terminals,start_symbol);
                     follow_curr.insert(follow[it->first].begin(),follow[it->first].end());
                 }else{
                     // check next element -> for loop untill no epsilon
                     auto next_ele = curr_ele;
                     next_ele++;
-
                     for(;next_ele!=temp[i].end();next_ele++){
                         // if terminal or no # productions add first of next to follow of original
                         if(find(terminals.begin(),terminals.end(),*next_ele)!=terminals.end()){
@@ -91,7 +79,7 @@ set <string> CalFollow(string original, map <string, set <string> > &follow, map
                                 break;
                             }else if(next_ele==last_ele){
                                 // produces # and last element : add follow of lhs too
-                                CalFollow(it->first,follow,first,prod,terminals);
+                                CalFollow(it->first,follow,first,prod,terminals,start_symbol);
                                 follow_curr.insert(follow[it->first].begin(),follow[it->first].end());
                             }
                         }
@@ -101,20 +89,18 @@ set <string> CalFollow(string original, map <string, set <string> > &follow, map
         }
     }
     follow_curr.erase("#");
+    if(original== start_symbol){
+        follow_curr.insert("$");
+    }
     follow[original]=follow_curr;
     return follow[original];
-
 }
 
 
 void MakeFirstFollow(){
-
 	/******************FILE INPUT********************/
 	fstream newfile;
-	// newfile.open("20BCS052_P5_FirstFollow.txt");
-    // Test7.txt  -  test case given by sir to test
     newfile.open("test1.txt");
-
 	// File Structure
 	// S A b B          - Productions S->AbB
     // S c S
@@ -126,12 +112,10 @@ void MakeFirstFollow(){
 	string tp;
 	unordered_map <string, vector<vector <string>> > productions;
     vector <string> prod_order;
-
     vector <string> terminals;
     vector <string> variables;
 
-	while(getline(newfile,tp)){
-        
+	while(getline(newfile,tp)){        
         size_t i=0,n = tp.length();
         string lhs="";
         for(;i<n;i++){
@@ -142,8 +126,7 @@ void MakeFirstFollow(){
                 lhs+=tp[i];
             }
         }
-        if(find(variables.begin(),variables.end(),lhs)==variables.end())variables.push_back(lhs);
-                
+        if(find(variables.begin(),variables.end(),lhs)==variables.end())variables.push_back(lhs);                
         string temp = "";
         vector <string> prod;
         for(;i<tp.size();i++){
@@ -164,12 +147,10 @@ void MakeFirstFollow(){
         }else{
             if(find(variables.begin(),variables.end(),temp)==variables.end())variables.push_back(temp);
         }
-
         prod.push_back(temp);
         productions[lhs].push_back(prod);
         prod_order.push_back(lhs);
     }
-
     newfile.close();
 
 	/****************** Function calls********************/
@@ -181,24 +162,18 @@ void MakeFirstFollow(){
     for(auto it=productions.begin();it!=productions.end();it++){
         CalFirst(it->first, first, productions);
     }
-
     // Follow
     map <string, set <string> > follow;
-    follow[prod_order[0]].insert("$");
-    // cout<<"\nStart symbol : "<<prod_order[0]<<endl;
-
+    // follow[prod_order[0]].insert("$");
+    // CalFollow(prod_order[0], follow, first,productions,terminals);
     while(follow.size()!=variables.size()){
         for(size_t i=0;i<variables.size();i++){
-            CalFollow(variables[i], follow, first,productions,terminals);
+            CalFollow(variables[i], follow, first,productions,terminals,prod_order[0]);
         }
     }
-
     /******************OUTPUT FILE********************/
     ofstream outfile;
     outfile.open ("first.txt");
-    // myfile << "Writing this to a file.\n";
-
-    // outfile<<"First"<<endl;
     for(auto it=first.begin();it!=first.end();it++){
         if(it->first[0]!='#'){
             outfile<<it->first<<" ";
@@ -208,12 +183,8 @@ void MakeFirstFollow(){
             outfile<<endl;
         }
     }
-
     outfile.close();
-
-    // ofstream outfile;
     outfile.open ("follow.txt");
-    // outfile<<"Follow"<<endl;
     for(auto it=follow.begin();it!=follow.end();it++){
         if(it->first.size() && it->first[0]>='A' && it->first[0]<='Z'){
             outfile<<it->first<<" ";
@@ -227,8 +198,5 @@ void MakeFirstFollow(){
             }
         }
     }
-
     outfile.close();
 }
-
-// g++ --std=c++17 -Wall -Wextra FirstnFollow.cpp && ./a.out
