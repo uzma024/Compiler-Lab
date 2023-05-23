@@ -228,4 +228,4 @@ int main(){
     }
 }
 
-// g++ --std=c++17 -Wall -Wextra First&Follow.cpp && ./a.out
+// g++ --std=c++17 -Wall -Wextra 20BCS052_P5_FirstFollow.cpp && ./a.out
